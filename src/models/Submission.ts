@@ -1,4 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from "typeorm"
+import { Contest } from "./Contest"
+import { Domain } from "./Domain"
+import { User } from "./User"
 
 /**
  * Language
@@ -27,14 +30,15 @@ import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, Update
  */
 
 @Entity()
-@Index(["submitter", "problem", "result", "language"])
+@Index(["submitter", "problem", "contest", "domain", "result", "language"])
 export class Submission {
     @PrimaryGeneratedColumn()
     id: number
 
     // 提交者
-    @Column()
-    submitter: number
+    @ManyToOne(() => User)
+    @JoinColumn()
+    submitter: User
 
     // 代码
     @Column("text")
@@ -43,6 +47,16 @@ export class Submission {
     // 语言
     @Column()
     language: number
+
+    // 比赛
+    @ManyToOne(() => Contest)
+    @JoinColumn()
+    contest: Contest
+
+    // 所属域id
+    @ManyToOne(() => Domain)
+    @JoinColumn()
+    domain: Domain
 
     // 题目
     @Column()

@@ -1,25 +1,30 @@
 import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn } from "typeorm"
 
 /**
+ * 用户表
+ * ---
+ * 该表存储用户的信息。
  * 
-# Privilege
-1	    访问主站
-2	    提交题目
-4	    查看题目
-8	    查看他人代码
-16	    参加比赛
-32	    使用博客
-64	    发送私信
-128	    自由发言
-256	    添加题目
-512	    举办比赛
-1024	获取题目数据
-2048	编辑题目
-4096	管理比赛
-8192	管理发言
-16384	管理权限
-32768   操作提交记录
-65536   下载题目数据
+ * 用户基本信息
+ * @param id 用户id
+ * @param username 用户名
+ * @param signature 个性签名
+ * @param rating Rating
+ * @param tag 标签
+ * 用户隐私信息
+ * @param realName 真实姓名
+ * @param studentId 学号
+ * @param email 邮箱
+ * @param phone 手机号
+ * @param password 密码hash，用bcrypt
+ * 用户权限信息
+ * @param privilege 权限
+ * 用户其他信息
+ * @param registerTime 注册时间
+ * @param lastLoginTime 最后登录时间
+ * 
+ * 主键：id
+ * 索引：username, email, phone
  */
 
 @Entity()
@@ -54,6 +59,7 @@ export class User {
     studentId: string
 
     // 权限
+    // 这个权限是指默认域的权限，用户在自建域的权限应该要专门开个表
     @Column({ default: 247 })
     privilege: number
 

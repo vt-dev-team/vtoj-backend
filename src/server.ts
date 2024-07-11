@@ -3,7 +3,7 @@ import fastifyCookie from '@fastify/cookie';
 import fastifySession from '@fastify/session';
 import "reflect-metadata"
 import typeorm from './plugins/typeorm';
-import { User, Problem, Submission, Domain } from './models';
+import { User, Problem, Submission, Domain, Contest } from './models';
 
 import { db, server } from "./config.json";
 
@@ -18,7 +18,7 @@ const app = Fastify({
 // Register the typeorm plugin with the database configuration
 app.register(typeorm, {
     ...db,
-    entities: [User, Problem, Submission, Domain],
+    entities: [User, Problem, Submission, Domain, Contest],
     synchronize: true
 });
 
