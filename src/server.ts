@@ -3,7 +3,7 @@ import fastifyCookie from '@fastify/cookie';
 import fastifySession from '@fastify/session';
 import "reflect-metadata"
 import typeorm from './plugins/typeorm';
-import { User } from './models';
+import { User, Problem, Submission, Domain } from './models';
 
 import { db, server } from "./config.json";
 
@@ -18,7 +18,7 @@ const app = Fastify({
 // Register the typeorm plugin with the database configuration
 app.register(typeorm, {
     ...db,
-    entities: [User],
+    entities: [User, Problem, Submission, Domain],
     synchronize: true
 });
 
@@ -27,7 +27,7 @@ app.register(fastifyCookie);
 app.register(fastifySession, {
     secret: process.env.SESSION_SECRET || randomBytes(32).toString('hex'),
     cookie: {
-        //secure: true,
+        secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     },

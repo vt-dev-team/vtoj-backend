@@ -1,10 +1,15 @@
 {
     "db": {
-        "type": "sqlite",
-        "database": "a.db"
+        "type": "mysql",
+        "host": "localhost",
+        "port": 3306,
+        "username": "root",
+        "password": "Ksnsd32423js",
+        "database": "oj"
     },
     "website": {
-        "title": "VegeTable OJ"
+        "title": "VegeTable OJ",
+        "nav": []
     },
     "ui": {
         "theme": "light",

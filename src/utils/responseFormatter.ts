@@ -9,7 +9,7 @@ export function successResponse(data: any, requestId?: string) {
     };
 }
 
-export function errorResponse(code: string, message: string, requestId?: string) {
+export function errorResponse(code: number, message: string, requestId?: string) {
     return {
         status: 'error',
         error: {
