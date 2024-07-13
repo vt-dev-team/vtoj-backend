@@ -8,6 +8,11 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { errorResponse, successResponse } from "../utils/responseFormatter";
 
 export async function onSend(request: FastifyRequest, reply: FastifyReply, payload: any) {
+    // 先判断返回是不是json
+    const contentType = reply.getHeader('Content-Type');
+    if (typeof contentType === 'string' && !contentType.includes('application/json')) {
+        return payload;
+    }
     if (reply.statusCode >= 200 && reply.statusCode < 300) {
         return JSON.stringify(successResponse(JSON.parse(payload), request.id));
     } else {

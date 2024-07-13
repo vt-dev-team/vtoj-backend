@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, JoinTable, ManyToMany } from "typeorm"
 import { User } from "./User";
 
 @Entity()
@@ -16,6 +16,7 @@ export class Domain {
     description: string;
 
     // 创建者
+    // 1个域只能由1个creator，但是1个creator有多个域，所以是多对1的关系
     @ManyToOne(() => User)
     @JoinColumn()
     creator: User;
@@ -23,6 +24,11 @@ export class Domain {
     // 默认权限，即未登录用户或未加入域的权限
     @Column()
     defaultPermission: number;
+
+    // 域成员
+    @ManyToMany(() => User)
+    @JoinTable()
+    members: User[];
 
     // 创建时间
     @CreateDateColumn({ type: "timestamp" })

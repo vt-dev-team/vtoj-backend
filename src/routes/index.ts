@@ -15,6 +15,7 @@ export default function routes(fastify: FastifyInstance, options: any, done: Fun
     fastify.register(import('./problem'), { prefix: '/problem' });
     fastify.register(import('./contest'), { prefix: '/contest' });
     fastify.register(import('./submission'), { prefix: '/submission' });
+    fastify.register(import('./announcement'), { prefix: '/announcement' });
 
     done();
 }

@@ -30,6 +30,7 @@ import { FastifyInstance } from "fastify";
 import { DataSource } from "typeorm";
 import { Contest, Problem } from "../models";
 import { authenticateSession } from "../middlewares/authMiddleware";
+import { request } from "http";
 
 declare module 'fastify' {
     interface FastifyInstance {
@@ -38,14 +39,17 @@ declare module 'fastify' {
 }
 
 async function problemRoutes(fastify: FastifyInstance) {
+    // 获取某个比赛，包括题目列表
     fastify.get<{ Params: { id: number } }>('/:id', async (request, reply) => {
         const contestRepository = fastify.dataSource.getRepository(Contest);
         const query = contestRepository.createQueryBuilder("contest")
             .leftJoinAndSelect("contest.creator", "user")
             .leftJoinAndSelect("contest.domain", "domain")
+            .leftJoinAndSelect("contest.problems", "problem")
+            .leftJoinAndSelect("contest.chooseProblems", "chooseProblem")
             .select([
                 "contest.id",
-                "contest.name",
+                "contest.title",
                 "contest.description",
                 "contest.creator",
                 "contest.isPublic",
@@ -58,12 +62,16 @@ async function problemRoutes(fastify: FastifyInstance) {
                 "user.rating",
                 "user.tag",
                 "domain.id",
-                "domain.name"
+                "domain.name",
+                "problem.id",
+                "problem.title",
+                "chooseProblem.id"
             ]);
         const contest = await query.where("contest.id = :id", { id: request.params.id }).getOne();
         return contest;
     })
 
+    // 获取比赛列表
     fastify.get<{ Querystring: { page?: number, pageSize?: number, search?: string, domain?: number } }>('/list', async (request, reply) => {
         const contestRepository = fastify.dataSource.getRepository(Contest);
         const page = request.query.page || 1;

@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, Update
 import { Contest } from "./Contest"
 import { Domain } from "./Domain"
 import { User } from "./User"
+import { Problem } from "./Problem"
 
 /**
  * Language
@@ -49,29 +50,30 @@ export class Submission {
     language: number
 
     // 比赛
-    @ManyToOne(() => Contest)
+    @ManyToOne(() => Contest, { nullable: true })
     @JoinColumn()
     contest: Contest
 
     // 所属域id
-    @ManyToOne(() => Domain)
+    @ManyToOne(() => Domain, { nullable: true })
     @JoinColumn()
     domain: Domain
 
     // 题目
-    @Column()
-    problem: number
+    @ManyToOne(() => Problem)
+    @JoinColumn()
+    problem: Problem
 
     // 结果
-    @Column()
+    @Column({ default: 0 })
     result: number
 
     // 得分
-    @Column("float")
+    @Column("float", { default: 0 })
     score: number
 
     // 详细信息
-    @Column("text")
+    @Column("text", { default: '[]' })
     info: string
 
     // 提交时间
@@ -83,6 +85,6 @@ export class Submission {
     judgeTime: Date
 
     // 评测机
-    @Column({ length: 50 })
+    @Column({ length: 50, default: 'Local' })
     judgeMachine: string
 }

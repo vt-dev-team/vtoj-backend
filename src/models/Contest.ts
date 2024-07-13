@@ -1,6 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, ManyToMany, JoinTable } from "typeorm"
 import { User } from "./User";
 import { Domain } from "./Domain";
+import { Problem } from "./Problem";
+import { ChooseProblem } from "./ChooseProblem";
 
 @Entity()
 @Index(["title", "domain"])
@@ -23,7 +25,7 @@ export class Contest {
     creator: User;
 
     // 所属域
-    @ManyToOne(() => Domain)
+    @ManyToOne(() => Domain, { nullable: true })
     @JoinColumn()
     domain: Domain;
 
@@ -31,14 +33,29 @@ export class Contest {
     @Column()
     isPublic: boolean;
 
-    // 题目列表，用,隔开
+    // 比赛密码
     @Column()
-    problemList: string;
+    password: string;
 
     // 比赛模式
     // 0: 正常训练 1: ACM 2: OI 3: IOI
     @Column()
     mode: number;
+
+    // 题目列表
+    @ManyToMany(() => Problem)
+    @JoinTable()
+    problems: Problem[];
+
+    // 客观题列表
+    @ManyToMany(() => ChooseProblem)
+    @JoinTable()
+    chooseProblems: ChooseProblem[];
+
+    // 额外管理人员
+    @ManyToMany(() => User)
+    @JoinTable()
+    managers: User[];
 
     // 创建时间
     @CreateDateColumn({ type: "timestamp" })
@@ -55,4 +72,8 @@ export class Contest {
     // 结束时间
     @Column({ type: "timestamp" })
     endTime: Date;
+
+    // 封榜时间
+    @Column({ type: "timestamp" })
+    freezeTime: Date;
 }

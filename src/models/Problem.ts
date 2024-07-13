@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, ManyToMany, JoinTable } from "typeorm"
 import { User } from "./User";
 import { Domain } from "./Domain"
 
@@ -36,7 +36,7 @@ export class Problem {
     tags: string;
 
     // 所属的域id
-    @ManyToOne(() => Domain)
+    @ManyToOne(() => Domain, { nullable: true })
     @JoinColumn()
     domain: Domain;
 
@@ -48,10 +48,19 @@ export class Problem {
     @Column()
     memoryLimit: number;
 
+    // 是否可用
+    @Column({ default: true })
+    available: boolean;
+
     // 评测方式
     // 0: Normal Judge, 1: Special Judge, 2: Submit Answer, 3: Interactive Judge
     @Column()
     judgeMethod: number;
+
+    // 额外管理人员
+    @ManyToMany(() => User)
+    @JoinTable()
+    managers: User[];
 
     // 创建时间
     @CreateDateColumn({ type: "timestamp" })

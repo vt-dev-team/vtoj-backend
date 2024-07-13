@@ -26,8 +26,14 @@
 
 import { FastifyInstance } from "fastify";
 import { DataSource } from "typeorm";
-import { Problem } from "../models";
+import { Problem, User } from "../models";
+import Config from "../config.json";
+import path from "path";
+import fs from 'fs';
+import archiver from 'archiver';
+
 import { authenticateSession } from "../middlewares/authMiddleware";
+import { Privilege } from "../models/Privilege";
 
 declare module 'fastify' {
     interface FastifyInstance {
@@ -36,6 +42,45 @@ declare module 'fastify' {
 }
 
 async function problemRoutes(fastify: FastifyInstance) {
+    // 下载题目数据
+    fastify.get<{ Params: { id: number } }>('/download/:id', async (request, reply) => {
+        // 权限验证
+        const loginUser = request.session.get<any>('user');
+        if (!loginUser) {
+            // 理论上游客也是有一个权限，也应该判断这个权限而不是直接返回401，但是这里先不管了，TODO
+            return reply.code(401).send({ message: '未登录' });
+        }
+        const UserRepository = fastify.dataSource.getRepository(User);
+        const user = await UserRepository.findOneBy({ id: loginUser.id });
+        if (!user) {
+            return reply.code(401).send({ message: '未登录' });
+        }
+        if (!(user.privilege & Privilege.GET_PROBLEM_DATA)) {
+            return reply.code(403).send({ message: '没有下载权限' })
+        }
+        // 下载题目数据
+        reply.header('Content-Type', 'application/zip')
+            .header('Content-Disposition', `attachment; filename="${request.params.id}.zip"`)
+
+        const dataDir = path.join(Config.server.dataPath, request.params.id.toString());
+        const output = fs.createWriteStream(path.join(dataDir, '..', `${request.params.id}.zip`));
+        const archive = archiver('zip', {
+            zlib: { level: 9 }
+        });
+
+        output.on('close', () => {
+            reply.send(fs.createReadStream(path.join(dataDir, '..', `${request.params.id}.zip`)));
+        })
+        archive.on('error', (err) => {
+            throw err;
+        })
+        archive.pipe(output);
+        console.log(dataDir);
+        archive.directory(dataDir, false);
+
+        await archive.finalize();
+        return reply;
+    });
     // 获取题目信息，根据指定id返回题目信息
     fastify.get<{ Params: { id: number } }>('/:id', async (request, reply) => {
         const problemRepository = fastify.dataSource.getRepository(Problem);
