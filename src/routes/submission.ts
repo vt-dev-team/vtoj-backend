@@ -189,6 +189,8 @@ async function submissionRoutes(fastify: FastifyInstance) {
                 score: true,
                 info: true,
                 submitTime: true,
+                timeCost: true,
+                memoryCost: true,
                 judgeTime: true,
                 judgeMachine: true,
                 contest: {
