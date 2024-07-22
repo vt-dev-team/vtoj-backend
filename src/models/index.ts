@@ -5,3 +5,4 @@ export * from './Submission';
 export * from './Domain';
 export * from './Contest';
 export * from './Announcement';
+export * from './TrainPlan';

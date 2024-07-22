@@ -3,7 +3,7 @@ import fastifyCookie from '@fastify/cookie';
 import fastifySession from '@fastify/session';
 import "reflect-metadata"
 import typeorm from './plugins/typeorm';
-import { Announcement, User, Problem, Submission, Domain, Contest, ChooseProblem } from './models';
+import { Announcement, User, Problem, Submission, Domain, Contest, ChooseProblem, TrainPlan } from './models';
 
 import { db, server } from "./config.json";
 
@@ -18,7 +18,7 @@ const app = Fastify({
 // 注册TypeORM的插件，数据库的设置在config.json中配置
 app.register(typeorm, {
     ...db,
-    entities: [Announcement, User, Problem, ChooseProblem, Submission, Domain, Contest],
+    entities: [Announcement, User, Problem, ChooseProblem, Submission, Domain, Contest, TrainPlan],
     synchronize: true
 });
 
