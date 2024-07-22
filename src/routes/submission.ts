@@ -106,7 +106,64 @@ async function submissionRoutes(fastify: FastifyInstance) {
     });
     // 查询提交记录列表
     fastify.get<{ Params: SubmissionListParam }>('/list', async (request, reply) => {
-        // TODO
+        // submission list不需要权限
+        // 查询条件有 语言language，分数score(范围或者单个值)，结果result，提交者submitter，限定条件是域domain，比赛contest，然后还有分页page和pageSize
+        // 首先按照domain和contest来查询，这两个是限定的
+        // 然后是其他的条件
+        // 最后再进行分页
+        const SubmissionRepository = fastify.dataSource.getRepository(Submission);
+        const query: any = {};
+        if (request.params.domain) {
+            query.domain = request.params.domain;
+        }
+        if (request.params.contest) {
+            query.contest = request.params.contest;
+        }
+        if (request.params.score) {
+            if (Array.isArray(request.params.score)) {
+                query.score = request.params.score;
+            }
+            else {
+                query.score = request.params.score;
+            }
+        }
+        if (request.params.result) {
+            query.result = request.params.result;
+        }
+        if (request.params.submitter) {
+            query.submitter = request.params.submitter;
+        }
+        if (request.params.language) {
+            query.language = request.params.language;
+        }
+        const submissions = await SubmissionRepository.find({
+            where: query,
+            relations: ['submitter', 'problem'],
+            select: {
+                id: true,
+                submitter: {
+                    id: true,
+                    username: true,
+                    rating: true,
+                },
+                problem: {
+                    id: true,
+                    pid: true,
+                    title: true
+                },
+                result: true,
+                timeCost: true,
+                memoryCost: true,
+                score: true,
+                submitTime: true
+            },
+            order: {
+                id: "DESC"
+            },
+            skip: request.params.page ? request.params.page * (request.params.pageSize || 20) : 0,
+            take: request.params.pageSize || 20
+        });
+        return submissions;
     });
     // 查询提交记录
     fastify.get<{ Params: { id: number } }>('/:id', async (request, reply) => {

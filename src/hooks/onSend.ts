@@ -13,9 +13,16 @@ export async function onSend(request: FastifyRequest, reply: FastifyReply, paylo
     if (typeof contentType === 'string' && !contentType.includes('application/json')) {
         return payload;
     }
+    let data;
+    try {
+        data = JSON.parse(payload);
+    }
+    catch (e) {
+        return payload;
+    }
     if (reply.statusCode >= 200 && reply.statusCode < 300) {
-        return JSON.stringify(successResponse(JSON.parse(payload), request.id));
+        return JSON.stringify(successResponse(data, request.id));
     } else {
-        return JSON.stringify(errorResponse(reply.statusCode, JSON.parse(payload).message, request.id));
+        return JSON.stringify(errorResponse(reply.statusCode, data.message, request.id));
     }
 }

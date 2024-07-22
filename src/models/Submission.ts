@@ -76,6 +76,14 @@ export class Submission {
     @Column("text", { default: '[]' })
     info: string
 
+    // 时间消耗
+    @Column({ default: 0 })
+    timeCost: number
+
+    // 内存消耗
+    @Column({ default: 0 })
+    memoryCost: number
+
     // 提交时间
     @CreateDateColumn({ type: "timestamp" })
     submitTime: Date
