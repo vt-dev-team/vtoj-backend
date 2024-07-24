@@ -105,37 +105,45 @@ async function submissionRoutes(fastify: FastifyInstance) {
         return submission;
     });
     // 查询提交记录列表
-    fastify.get<{ Params: SubmissionListParam }>('/list', async (request, reply) => {
-        // submission list不需要权限
-        // 查询条件有 语言language，分数score(范围或者单个值)，结果result，提交者submitter，限定条件是域domain，比赛contest，然后还有分页page和pageSize
-        // 首先按照domain和contest来查询，这两个是限定的
-        // 然后是其他的条件
-        // 最后再进行分页
+    fastify.get<{ Querystring: SubmissionListParam }>('/list', async (request, reply) => {
+        // 提取分页参数，默认值为1和20
+        const page = request.query.page || 1;
+        const pageSize = request.query.pageSize || 20;
+
         const SubmissionRepository = fastify.dataSource.getRepository(Submission);
+
+        // 构建查询条件
         const query: any = {};
-        if (request.params.domain) {
-            query.domain = request.params.domain;
+        if (request.query.domain) {
+            query.domain = request.query.domain;
         }
-        if (request.params.contest) {
-            query.contest = request.params.contest;
+        if (request.query.contest) {
+            query.contest = request.query.contest;
         }
-        if (request.params.score) {
-            if (Array.isArray(request.params.score)) {
-                query.score = request.params.score;
+        if (request.query.score) {
+            if (Array.isArray(request.query.score)) {
+                query.score = request.query.score;
+            } else {
+                query.score = request.query.score;
             }
-            else {
-                query.score = request.params.score;
-            }
         }
-        if (request.params.result) {
-            query.result = request.params.result;
+        if (request.query.result) {
+            query.result = request.query.result;
         }
-        if (request.params.submitter) {
-            query.submitter = request.params.submitter;
+        if (request.query.submitter) {
+            query.submitter = request.query.submitter;
         }
-        if (request.params.language) {
-            query.language = request.params.language;
+        if (request.query.language) {
+            query.language = request.query.language;
         }
+
+        // 查询总记录数
+        const totalRecords = await SubmissionRepository.count({ where: query });
+
+        // 计算总页数
+        const totalPages = Math.ceil(totalRecords / pageSize);
+
+        // 查询分页数据
         const submissions = await SubmissionRepository.find({
             where: query,
             relations: ['submitter', 'problem'],
@@ -145,6 +153,7 @@ async function submissionRoutes(fastify: FastifyInstance) {
                     id: true,
                     username: true,
                     rating: true,
+                    tag: true
                 },
                 problem: {
                     id: true,
@@ -155,15 +164,25 @@ async function submissionRoutes(fastify: FastifyInstance) {
                 timeCost: true,
                 memoryCost: true,
                 score: true,
-                submitTime: true
+                submitTime: true,
+                judgeTime: true,
+                judgeMachine: true
             },
             order: {
                 id: "DESC"
             },
-            skip: request.params.page ? request.params.page * (request.params.pageSize || 20) : 0,
-            take: request.params.pageSize || 20
+            skip: (page - 1) * pageSize,
+            take: pageSize
         });
-        return submissions;
+
+        // 返回结果，包括分页信息
+        return {
+            submissions,
+            totalPages,
+            currentPage: page,
+            pageSize,
+            totalRecords
+        };
     });
     // 查询提交记录
     fastify.get<{ Params: { id: number } }>('/:id', async (request, reply) => {

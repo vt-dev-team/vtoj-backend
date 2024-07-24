@@ -74,7 +74,7 @@ async function announcementRoutes(fastify: FastifyInstance) {
             announcements,
             totalPages,
             currentPage: page,
-            pageSize: pageSize,
+            pageSize,
             totalRecords
         };
     })
