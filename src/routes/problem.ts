@@ -142,7 +142,17 @@ async function problemRoutes(fastify: FastifyInstance) {
         query.take(pageSize).skip((page - 1) * pageSize);
 
         const problems = await query.getMany();
-        return problems;
+        
+        const totalRecords = await query.getCount();
+        const totalPages = Math.ceil(totalRecords / pageSize);
+
+        return {
+            data: problems,
+            totalPages,
+            currentPage: page,
+            pageSize,
+            totalRecords
+        };
     });
 }
 

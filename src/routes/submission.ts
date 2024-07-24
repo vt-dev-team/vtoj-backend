@@ -177,7 +177,7 @@ async function submissionRoutes(fastify: FastifyInstance) {
 
         // 返回结果，包括分页信息
         return {
-            submissions,
+            data: submissions,
             totalPages,
             currentPage: page,
             pageSize,
